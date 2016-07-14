@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View v = null;
-            Toast.makeText(context, position + "번", Toast.LENGTH_SHORT).show();
             switch (position) {
                 case 0: {
                     v = mInflater.inflate(R.layout.layout_userlist, null);
