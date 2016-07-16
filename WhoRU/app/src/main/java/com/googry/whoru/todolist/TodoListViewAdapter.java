@@ -1,7 +1,6 @@
-package com.googry.whoru.userlist;
+package com.googry.whoru.todolist;
 
 import android.content.Context;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,25 +14,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Created by SeokJun on 2016-07-13.
+ * Created by SeokJun on 2016-07-15.
  */
-public class UserListViewAdapter extends BaseAdapter {
+public class TodoListViewAdapter extends BaseAdapter {
     private Context context = null;
-    private ArrayList<User> alUser = new ArrayList<>();
+    private ArrayList<Todo> alTodo = new ArrayList<>();
 
-    public UserListViewAdapter(Context context) {
+    public TodoListViewAdapter(Context context) {
         super();
         this.context = context;
     }
 
     @Override
     public int getCount() {
-        return alUser.size();
+        return alTodo.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return alUser.get(position);
+        return alTodo.get(position);
     }
 
     @Override
@@ -49,46 +48,46 @@ public class UserListViewAdapter extends BaseAdapter {
 
 //            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LayoutInflater inflater = LayoutInflater.from(context);
-            convertView = inflater.inflate(R.layout.listitem_user, null);
+            convertView = inflater.inflate(R.layout.listitem_todo, null);
 
-            holder.iv_picture = (ImageView) convertView.findViewById(R.id.iv_picture);
-            holder.tv_itemName = (TextView) convertView.findViewById(R.id.tv_itemName);
-            holder.tv_itemPhone = (TextView) convertView.findViewById(R.id.tv_itemPhone);
+            holder.tv_itemDay = (TextView) convertView.findViewById(R.id.tv_itemDay);
+            holder.tv_itemContent = (TextView) convertView.findViewById(R.id.tv_itemContent);
+            holder.tv_itemJoin = (TextView) convertView.findViewById(R.id.tv_itemJoin);
 
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        User user = alUser.get(position);
+        Todo todo = alTodo.get(position);
 
         //나중에 이미지 삽입
 //        holder.iv_picture.
-        holder.tv_itemName.setText(user.getName());
-        holder.tv_itemPhone.setText(user.getPhone());
+        holder.tv_itemDay.setText(todo.getDay() + " " + todo.getTime());
+        holder.tv_itemContent.setText(todo.getContent());
+        holder.tv_itemJoin.setText(todo.getJoin());
         return convertView;
     }
 
     private class ViewHolder {
-        public ImageView iv_picture;
-        public TextView tv_itemName, tv_itemPhone;
+        public TextView tv_itemDay, tv_itemContent, tv_itemJoin;
 
     }
 
-    public void addItem(String name, String phone) {
-        alUser.add(new User(name, phone, null));
+    public void addItem(String day, String time, String content, String join) {
+        alTodo.add(new Todo(day, time, content, join));
     }
 
     public void removeItem(int position) {
-        alUser.remove(position);
+        alTodo.remove(position);
     }
 
-    public void removeItem(User user) {
-        alUser.remove(user);
+    public void removeItem(Todo todo) {
+        alTodo.remove(todo);
     }
 
-    public void sortItem() {
-        Collections.sort(alUser, User.ALPHA_COMPARATOR);
-        this.notifyDataSetChanged();
-    }
+//    public void sortItem() {
+//        Collections.sort(alTodo, Todo.ALPHA_COMPARATOR);
+//        this.notifyDataSetChanged();
+//    }
 }
