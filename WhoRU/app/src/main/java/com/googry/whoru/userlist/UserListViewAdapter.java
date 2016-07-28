@@ -75,9 +75,15 @@ public class UserListViewAdapter extends BaseAdapter {
 
     }
 
-    public void addItem(String name, String phone) {
-        alUser.add(new User(name, phone, null));
+
+    public void addItems(ArrayList<User> alUser) {
+        this.alUser = alUser;
     }
+
+    public void addItem(User user) {
+        this.alUser.add(user);
+    }
+
 
     public void removeItem(int position) {
         alUser.remove(position);

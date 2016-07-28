@@ -8,45 +8,40 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.userlist.User;
 
 /**
- * Created by SeokJun on 2016-07-16.
+ * Created by SeokJun on 2016-07-28.
  */
-
-public class AddUserActivity extends Activity {
+public class DetailUserActivity extends Activity {
     private ImageView iv_profile;
     private EditText et_name, et_phone, et_email, et_department, et_memo;
-    private Button btn_register;
-
-
-    private UserDBManager dbManager;
+    private Button btn_ok;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_adduser);
+        setContentView(R.layout.activity_detailuser);
         setLayout();
+        User user = getIntent().getParcelableExtra("user");
+        setData(user);
 
-        dbManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
 
-        btn_register.setOnClickListener(new View.OnClickListener() {
+        btn_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                User user = new User(et_name.getText().toString(),
-                        et_phone.getText().toString(),
-                        et_email.getText().toString(),
-                        et_department.getText().toString(),
-                        et_memo.getText().toString(),
-                        null);
-                dbManager.insert(user);
-                Intent intent = new Intent();
-                intent.putExtra("user",user);
-                setResult(RESULT_OK,intent);
                 finish();
             }
         });
+
+    }
+
+    private void setData(User user) {
+        et_name.setText(user.getName());
+        et_phone.setText(user.getPhone());
+        et_email.setText(user.getEmail());
+        et_department.setText(user.getDepartment());
+        et_memo.setText(user.getMemo());
     }
 
     private void setLayout() {
@@ -56,6 +51,6 @@ public class AddUserActivity extends Activity {
         et_email = (EditText) findViewById(R.id.et_email);
         et_department = (EditText) findViewById(R.id.et_department);
         et_memo = (EditText) findViewById(R.id.et_memo);
-        btn_register = (Button) findViewById(R.id.btn_register);
+        btn_ok = (Button) findViewById(R.id.btn_ok);
     }
 }

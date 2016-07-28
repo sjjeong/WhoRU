@@ -1,46 +1,51 @@
 package com.googry.whoru;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.todolist.TodoListViewAdapter;
+import com.googry.whoru.userlist.User;
 import com.googry.whoru.userlist.UserListViewAdapter;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private Button btn_addUser;
     private TextView tv_name1, tv_name2;
     private ListView lv_users;
     private ViewPager viewPager;
 
     private Button btn_friend, btn_schedule;
+    private ImageButton ibtn_adduser, ibtn_addlist;
 
     private UserListViewAdapter userListViewAdapter;
     private TodoListViewAdapter todoListViewAdapter;
+
+    private UserDBManager userDBManager;
+
+    private final static int REQUESTCODE_ADDUSER = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //sample item
         userListViewAdapter = new UserListViewAdapter(getApplicationContext());
-        userListViewAdapter.addItem("홍지홍", "010-5555-4444");
-        userListViewAdapter.addItem("유혜정", "010-1111-2222");
-        userListViewAdapter.addItem("정윤도", "010-3333-6666");
-        userListViewAdapter.addItem("진서우", "010-0000-9999");
+        userDBManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
+        userListViewAdapter.addItems(userDBManager.getArrayListData());
 
         //sample item
         todoListViewAdapter = new TodoListViewAdapter(getApplicationContext());
@@ -54,34 +59,6 @@ public class MainActivity extends AppCompatActivity {
         tv_name1.setText("친구");
         tv_name2.setText(userListViewAdapter.getCount() + "");
 
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        viewPager.setAdapter(new MyViewPagerAdapter(getApplicationContext()));
-        viewPager.setCurrentItem(0);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0: {
-                        tv_name1.setText("친구");
-                        tv_name2.setText(userListViewAdapter.getCount() + "");
-                    }
-                    break;
-                    case 1: {
-                        tv_name1.setText("일정");
-                        tv_name2.setText(todoListViewAdapter.getCount() + "");
-                    }
-                    break;
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
 
         btn_friend = (Button) findViewById(R.id.btn_friend);
         btn_schedule = (Button) findViewById(R.id.btn_schedule);
@@ -99,6 +76,68 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ibtn_adduser = (ImageButton) findViewById(R.id.ibtn_adduser);
+        ibtn_addlist = (ImageButton) findViewById(R.id.ibtn_addlist);
+
+        ibtn_adduser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AddUserActivity.class);
+                startActivityForResult(intent, REQUESTCODE_ADDUSER);
+            }
+        });
+        ibtn_addlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager.setAdapter(new MyViewPagerAdapter(getApplicationContext()));
+        viewPager.setCurrentItem(0);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0: {
+                        tv_name1.setText("친구");
+                        tv_name2.setText(userListViewAdapter.getCount() + "");
+
+                    }
+                    break;
+                    case 1: {
+                        tv_name1.setText("일정");
+                        tv_name2.setText(todoListViewAdapter.getCount() + "");
+                    }
+                    break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUESTCODE_ADDUSER: {
+                userListViewAdapter.addItem((User) data.getParcelableExtra("user"));
+                userListViewAdapter.notifyDataSetChanged();
+                tv_name2.setText(userListViewAdapter.getCount() + "");
+            }
+            break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private class MyViewPagerAdapter extends PagerAdapter {
@@ -126,12 +165,29 @@ public class MainActivity extends AppCompatActivity {
                     v = mInflater.inflate(R.layout.layout_userlist, null);
                     ListView lv_users = (ListView) v.findViewById(R.id.lv_users);
                     lv_users.setAdapter(userListViewAdapter);
-
+                    lv_users.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Intent intent = new Intent(getApplicationContext(),DetailUserActivity.class);
+                            intent.putExtra("user",(User)userListViewAdapter.getItem(position));
+                            startActivity(intent);
+                        }
+                    });
+                    lv_users.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                        @Override
+                        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                            userDBManager.delete((User)userListViewAdapter.getItem(position));
+                            userListViewAdapter.removeItem(position);
+                            userListViewAdapter.notifyDataSetChanged();
+                            tv_name2.setText(userListViewAdapter.getCount() + "");
+                            return true;
+                        }
+                    });
                 }
                 break;
                 case 1: {
                     v = mInflater.inflate(R.layout.layout_todolist, null);
-                    ListView lv_todolist = (ListView)v.findViewById(R.id.lv_todolist);
+                    ListView lv_todolist = (ListView) v.findViewById(R.id.lv_todolist);
                     lv_todolist.setAdapter(todoListViewAdapter);
                 }
                 break;

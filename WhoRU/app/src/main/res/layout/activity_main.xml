@@ -30,18 +30,24 @@
             android:textSize="18dp" />
 
         <Button
-            android:id="@+id/ib_adduser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="New Button"
             android:visibility="invisible" />
 
 
         <ImageButton
+            android:id="@+id/ibtn_adduser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/main_topbar_adduser" />
+
+        <ImageButton
+            android:id="@+id/ibtn_addlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/main_topbar_adduser"
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
