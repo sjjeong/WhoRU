@@ -1,4 +1,4 @@
-package com.googry.whoru;
+package com.googry.whoru.userlist;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.googry.whoru.R;
 import com.googry.whoru.userlist.User;
 
 /**

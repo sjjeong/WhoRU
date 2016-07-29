@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.googry.whoru.database.UserDBManager;
+import com.googry.whoru.todolist.AddTodoActivity;
+import com.googry.whoru.todolist.Todo;
 import com.googry.whoru.todolist.TodoListViewAdapter;
+import com.googry.whoru.userlist.AddUserActivity;
+import com.googry.whoru.userlist.DetailUserActivity;
 import com.googry.whoru.userlist.User;
 import com.googry.whoru.userlist.UserListViewAdapter;
 
@@ -29,7 +32,7 @@ public class MainActivity extends Activity {
     private ViewPager viewPager;
 
     private Button btn_friend, btn_schedule;
-    private ImageButton ibtn_adduser, ibtn_addlist;
+    private ImageButton ibtn_adduser, ibtn_addtodo;
 
     private UserListViewAdapter userListViewAdapter;
     private TodoListViewAdapter todoListViewAdapter;
@@ -37,6 +40,7 @@ public class MainActivity extends Activity {
     private UserDBManager userDBManager;
 
     private final static int REQUESTCODE_ADDUSER = 1;
+    private final static int REQUESTCODE_ADDTODO = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +53,9 @@ public class MainActivity extends Activity {
 
         //sample item
         todoListViewAdapter = new TodoListViewAdapter(getApplicationContext());
-        todoListViewAdapter.addItem("2016-07-12", "14:00", "TW 회의", "정석준, 김진홍, 최재훈");
-        todoListViewAdapter.addItem("2016-07-14", "16:00", "TW 개발", "정석준");
-        todoListViewAdapter.addItem("2016-07-16", "14:00", "세미나", "정석준, 신동렬, 채윤주, 김얼, 김다연, 박찬호");
+//        todoListViewAdapter.addItem("2016-07-12", "14:00", "TW 회의", "정석준, 김진홍, 최재훈");
+//        todoListViewAdapter.addItem("2016-07-14", "16:00", "TW 개발", "정석준");
+//        todoListViewAdapter.addItem("2016-07-16", "14:00", "세미나", "정석준, 신동렬, 채윤주, 김얼, 김다연, 박찬호");
 
         tv_name1 = (TextView) findViewById(R.id.tv_name1);
         tv_name2 = (TextView) findViewById(R.id.tv_name2);
@@ -77,7 +81,7 @@ public class MainActivity extends Activity {
         });
 
         ibtn_adduser = (ImageButton) findViewById(R.id.ibtn_adduser);
-        ibtn_addlist = (ImageButton) findViewById(R.id.ibtn_addlist);
+        ibtn_addtodo = (ImageButton) findViewById(R.id.ibtn_addtodo);
 
         ibtn_adduser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,9 +90,11 @@ public class MainActivity extends Activity {
                 startActivityForResult(intent, REQUESTCODE_ADDUSER);
             }
         });
-        ibtn_addlist.setOnClickListener(new View.OnClickListener() {
+        ibtn_addtodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AddTodoActivity.class);
+                startActivityForResult(intent, REQUESTCODE_ADDTODO);
 
             }
         });
@@ -107,12 +113,16 @@ public class MainActivity extends Activity {
                     case 0: {
                         tv_name1.setText("친구");
                         tv_name2.setText(userListViewAdapter.getCount() + "");
+                        ibtn_adduser.setVisibility(View.VISIBLE);
+                        ibtn_addtodo.setVisibility(View.GONE);
 
                     }
                     break;
                     case 1: {
                         tv_name1.setText("일정");
                         tv_name2.setText(todoListViewAdapter.getCount() + "");
+                        ibtn_adduser.setVisibility(View.GONE);
+                        ibtn_addtodo.setVisibility(View.VISIBLE);
                     }
                     break;
                 }
@@ -130,9 +140,19 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUESTCODE_ADDUSER: {
-                userListViewAdapter.addItem((User) data.getParcelableExtra("user"));
-                userListViewAdapter.notifyDataSetChanged();
-                tv_name2.setText(userListViewAdapter.getCount() + "");
+                if(resultCode == RESULT_OK) {
+                    userListViewAdapter.addItem((User) data.getParcelableExtra("user"));
+                    userListViewAdapter.notifyDataSetChanged();
+                    tv_name2.setText(userListViewAdapter.getCount() + "");
+                }
+            }
+            break;
+            case REQUESTCODE_ADDTODO: {
+                if(resultCode == RESULT_OK){
+                    todoListViewAdapter.addItem((Todo) data.getParcelableExtra("todo"));
+                    todoListViewAdapter.notifyDataSetChanged();
+                    tv_name2.setText(todoListViewAdapter.getCount() + "");
+                }
             }
             break;
         }
@@ -168,15 +188,15 @@ public class MainActivity extends Activity {
                     lv_users.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Intent intent = new Intent(getApplicationContext(),DetailUserActivity.class);
-                            intent.putExtra("user",(User)userListViewAdapter.getItem(position));
+                            Intent intent = new Intent(getApplicationContext(), DetailUserActivity.class);
+                            intent.putExtra("user", (User) userListViewAdapter.getItem(position));
                             startActivity(intent);
                         }
                     });
                     lv_users.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                         @Override
                         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                            userDBManager.delete((User)userListViewAdapter.getItem(position));
+                            userDBManager.delete((User) userListViewAdapter.getItem(position));
                             userListViewAdapter.removeItem(position);
                             userListViewAdapter.notifyDataSetChanged();
                             tv_name2.setText(userListViewAdapter.getCount() + "");

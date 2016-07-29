@@ -43,10 +43,10 @@
             android:background="@drawable/main_topbar_adduser" />
 
         <ImageButton
-            android:id="@+id/ibtn_addlist"
+            android:id="@+id/ibtn_addtodo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/main_topbar_adduser"
+            android:background="@drawable/main_topbar_addtodo"
             android:visibility="gone" />
     </LinearLayout>
 

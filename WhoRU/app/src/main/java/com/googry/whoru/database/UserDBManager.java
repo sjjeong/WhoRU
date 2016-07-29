@@ -49,7 +49,7 @@ public class UserDBManager extends SQLiteOpenHelper {
     }
 
 //    public void update(User user) {
-//
+// dbManager.update("update FOOD_LIST set price = " + price + " where name = '" + name + "';");
 //    }
 
     public void delete(User user) {

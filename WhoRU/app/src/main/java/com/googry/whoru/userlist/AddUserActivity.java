@@ -1,4 +1,4 @@
-package com.googry.whoru;
+package com.googry.whoru.userlist;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.googry.whoru.R;
 import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.userlist.User;
 
@@ -19,7 +20,6 @@ public class AddUserActivity extends Activity {
     private ImageView iv_profile;
     private EditText et_name, et_phone, et_email, et_department, et_memo;
     private Button btn_register;
-
 
     private UserDBManager dbManager;
 
