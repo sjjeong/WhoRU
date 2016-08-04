@@ -1,6 +1,7 @@
 package com.googry.whoru.userlist;
 
 import android.content.Context;
+import android.telephony.PhoneNumberUtils;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +66,7 @@ public class UserListViewAdapter extends BaseAdapter {
         //나중에 이미지 삽입
 //        holder.iv_picture.
         holder.tv_itemName.setText(user.getName());
-        holder.tv_itemPhone.setText(user.getPhone());
+        holder.tv_itemPhone.setText(PhoneNumberUtils.formatNumber(user.getPhone()));
         return convertView;
     }
 

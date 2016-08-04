@@ -24,9 +24,8 @@ public class UserDBManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLENAME + "(" +
-                "_id integer primary key autoincrement, " +
                 "name text," +
-                "phone text," +
+                "phone text primary key," +
                 "email text," +
                 "department text," +
                 "memo text" +
@@ -37,15 +36,14 @@ public class UserDBManager extends SQLiteOpenHelper {
     public void insert(User user) {
         SQLiteDatabase db = getWritableDatabase();
         String query = "insert into " + TABLENAME +
-                " values(null, " +
+                " values(" +
                 "'" + user.getName() + "', " +
                 "'" + user.getPhone() + "', " +
                 "'" + user.getEmail() + "', " +
                 "'" + user.getDepartment() + "', " +
-                "\"'" + user.getMemo() + "'\"" +
+                "'" + user.getMemo() + "'" +
                 ");";
         db.execSQL(query);
-        String str = "\"";
     }
 
 //    public void update(User user) {
@@ -55,7 +53,7 @@ public class UserDBManager extends SQLiteOpenHelper {
     public void delete(User user) {
         SQLiteDatabase db = getWritableDatabase();
         String query = "delete from " + TABLENAME +
-                " where name = '" + user.getName() + "';";
+                " where phone = '" + user.getPhone() + "';";
         db.execSQL(query);
     }
 
@@ -64,10 +62,20 @@ public class UserDBManager extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from "+TABLENAME,null);
         while(cursor.moveToNext()){
-            User user = new User(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),null);
+            User user = new User(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),null);
             alUser.add(user);
         }
         return alUser;
+    }
+
+    public User getUserToPhone(String phone){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + TABLENAME + " where phone = '"+phone+"'",null);
+        User user = null;
+        if(cursor.moveToNext()){
+            user = new User(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),null);
+        }
+        return user;
     }
 
     @Override

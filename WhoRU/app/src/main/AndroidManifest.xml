@@ -21,8 +21,6 @@
         <activity android:name=".userlist.AddUserActivity" />
         <activity android:name=".userlist.DetailUserActivity" />
         <activity android:name=".todolist.AddTodoActivity" />
-        <activity android:name=".TmpActivity" />
-
         <receiver android:name=".IncomingCallBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
@@ -31,9 +29,10 @@
 
         <service
             android:name=".ViewService"
-            android:permission="android.permission.SYSTEM_ALERT_WINDOW"></service>
+            android:permission="android.permission.SYSTEM_ALERT_WINDOW" />
 
-        <activity android:name=".todolist.DetailTodoActivity"></activity>
+        <activity android:name=".todolist.DetailTodoActivity" />
+        <activity android:name=".todolist.AddUser2TodoActivity"></activity>
     </application>
 
 </manifest>

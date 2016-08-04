@@ -1,14 +1,25 @@
 package com.googry.whoru.todolist;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.googry.whoru.MainActivity;
 import com.googry.whoru.R;
 import com.googry.whoru.database.TodoDBManager;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Created by SeokJun on 2016-07-29.
@@ -18,6 +29,10 @@ public class AddTodoActivity extends Activity {
     private Button btn_register;
 
     private TodoDBManager dbManager;
+
+    private int year, month, day, hour, minute;
+    private DatePickerDialog datePickerDialog;
+    private TimePickerDialog timePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +51,88 @@ public class AddTodoActivity extends Activity {
                         et_content.getText().toString());
                 dbManager.insert(todo);
                 Intent intent = new Intent();
-                intent.putExtra("user",todo);
-                setResult(RESULT_OK,intent);
+                intent.putExtra("todo", todo);
+                setResult(RESULT_OK, intent);
+                dbManager.close();
                 finish();
             }
         });
+
+
+        GregorianCalendar calendar = new GregorianCalendar();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+
+        String strDate = year+"/"+(month+1)+"/"+day;
+        String strTime = String.format("%02d : %02d",hour,minute);
+        et_date.setText(strDate);
+        et_time.setText(strTime);
+
+        et_date.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (datePickerDialog == null) {
+                    datePickerDialog = new DatePickerDialog(AddTodoActivity.this, dateSetListener, year, month, day);
+                    datePickerDialog.setCanceledOnTouchOutside(true);
+                    datePickerDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            datePickerDialog = null;
+                        }
+                    });
+                    datePickerDialog.show();
+                }
+                return false;
+            }
+        });
+        et_time.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (timePickerDialog == null) {
+                    timePickerDialog = new TimePickerDialog(AddTodoActivity.this, timeSetListener, hour, minute, false);
+                    timePickerDialog.setCanceledOnTouchOutside(true);
+                    timePickerDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            timePickerDialog = null;
+                        }
+                    });
+                    timePickerDialog.show();
+                }
+                return false;
+            }
+        });
     }
+
+    private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year_, int monthOfYear, int dayOfMonth) {
+//            String msg = String.format("%d / %d / %d", year, monthOfYear + 1, dayOfMonth);
+//            Toast.makeText(getApplication(), msg, Toast.LENGTH_SHORT).show();
+            year = year_;
+            month = monthOfYear;
+            day = dayOfMonth;
+            String strDate = year+"/"+(month+1)+"/"+day;
+            et_date.setText(strDate);
+            datePickerDialog = null;
+        }
+    };
+
+    private TimePickerDialog.OnTimeSetListener timeSetListener = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute_) {
+//            String msg = String.format("%d / %d / %d", year, hourOfDay, minute);
+//            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+            hour = hourOfDay;
+            minute = minute_;
+            String strTime = String.format("%02d : %02d",hour,minute);
+            et_time.setText(strTime);
+            timePickerDialog = null;
+        }
+    };
 
     private void setLayout() {
         et_date = (EditText) findViewById(R.id.et_date);

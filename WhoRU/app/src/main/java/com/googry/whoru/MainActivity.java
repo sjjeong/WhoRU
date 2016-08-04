@@ -12,11 +12,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.googry.whoru.database.TodoDBManager;
 import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.todolist.AddTodoActivity;
+import com.googry.whoru.todolist.DetailTodoActivity;
 import com.googry.whoru.todolist.Todo;
 import com.googry.whoru.todolist.TodoListViewAdapter;
 import com.googry.whoru.userlist.AddUserActivity;
@@ -24,21 +27,24 @@ import com.googry.whoru.userlist.DetailUserActivity;
 import com.googry.whoru.userlist.User;
 import com.googry.whoru.userlist.UserListViewAdapter;
 
+import java.util.zip.Inflater;
+
 
 public class MainActivity extends Activity {
-    private Button btn_addUser;
     private TextView tv_name1, tv_name2;
-    private ListView lv_users;
     private ViewPager viewPager;
-
     private Button btn_friend, btn_schedule;
     private ImageButton ibtn_adduser, ibtn_addtodo;
 
     private UserListViewAdapter userListViewAdapter;
     private TodoListViewAdapter todoListViewAdapter;
+    private MyViewPagerAdapter myViewPagerAdapter;
 
+    //SQLite
     private UserDBManager userDBManager;
+    private TodoDBManager todoDBManager;
 
+    //intent request code
     private final static int REQUESTCODE_ADDUSER = 1;
     private final static int REQUESTCODE_ADDTODO = 2;
 
@@ -47,25 +53,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        userListViewAdapter = new UserListViewAdapter(getApplicationContext());
-        userDBManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
-        userListViewAdapter.addItems(userDBManager.getArrayListData());
-
-        //sample item
-        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext());
-//        todoListViewAdapter.addItem("2016-07-12", "14:00", "TW 회의", "정석준, 김진홍, 최재훈");
-//        todoListViewAdapter.addItem("2016-07-14", "16:00", "TW 개발", "정석준");
-//        todoListViewAdapter.addItem("2016-07-16", "14:00", "세미나", "정석준, 신동렬, 채윤주, 김얼, 김다연, 박찬호");
-
-        tv_name1 = (TextView) findViewById(R.id.tv_name1);
-        tv_name2 = (TextView) findViewById(R.id.tv_name2);
+        setLayout();
+        setData();
 
         tv_name1.setText("친구");
         tv_name2.setText(userListViewAdapter.getCount() + "");
-
-
-        btn_friend = (Button) findViewById(R.id.btn_friend);
-        btn_schedule = (Button) findViewById(R.id.btn_schedule);
 
         btn_friend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,9 +71,6 @@ public class MainActivity extends Activity {
                 viewPager.setCurrentItem(1);
             }
         });
-
-        ibtn_adduser = (ImageButton) findViewById(R.id.ibtn_adduser);
-        ibtn_addtodo = (ImageButton) findViewById(R.id.ibtn_addtodo);
 
         ibtn_adduser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,10 +88,10 @@ public class MainActivity extends Activity {
             }
         });
 
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        viewPager.setAdapter(new MyViewPagerAdapter(getApplicationContext()));
+        myViewPagerAdapter = new MyViewPagerAdapter(getApplicationContext());
+        viewPager.setAdapter(myViewPagerAdapter);
         viewPager.setCurrentItem(0);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.setOnPageChangeListener((new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
@@ -115,7 +104,6 @@ public class MainActivity extends Activity {
                         tv_name2.setText(userListViewAdapter.getCount() + "");
                         ibtn_adduser.setVisibility(View.VISIBLE);
                         ibtn_addtodo.setVisibility(View.GONE);
-
                     }
                     break;
                     case 1: {
@@ -131,28 +119,61 @@ public class MainActivity extends Activity {
             @Override
             public void onPageScrollStateChanged(int state) {
             }
-        });
+        }));
 
 
+    }
+
+    private void setLayout() {
+        tv_name1 = (TextView) findViewById(R.id.tv_name1);
+        tv_name2 = (TextView) findViewById(R.id.tv_name2);
+        btn_friend = (Button) findViewById(R.id.btn_friend);
+        btn_schedule = (Button) findViewById(R.id.btn_schedule);
+        ibtn_adduser = (ImageButton) findViewById(R.id.ibtn_adduser);
+        ibtn_addtodo = (ImageButton) findViewById(R.id.ibtn_addtodo);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+    }
+
+    private void setData() {
+        //get user db
+        userListViewAdapter = new UserListViewAdapter(getApplicationContext());
+        userDBManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
+        userListViewAdapter.addItems(userDBManager.getArrayListData());
+
+        //get todo db
+        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext());
+        todoDBManager = new TodoDBManager(getApplicationContext(), TodoDBManager.DBNAME, null, TodoDBManager.DBVERSER);
+        todoListViewAdapter.addItems(todoDBManager.getArrayListData());
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        userDBManager.close();
+        todoDBManager.close();
+        super.onDestroy();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUESTCODE_ADDUSER: {
-                if(resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     userListViewAdapter.addItem((User) data.getParcelableExtra("user"));
                     userListViewAdapter.notifyDataSetChanged();
                     tv_name2.setText(userListViewAdapter.getCount() + "");
+                    myViewPagerAdapter.notifyDataSetChanged();
                 }
             }
             break;
             case REQUESTCODE_ADDTODO: {
-                if(resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     todoListViewAdapter.addItem((Todo) data.getParcelableExtra("todo"));
                     todoListViewAdapter.notifyDataSetChanged();
                     tv_name2.setText(todoListViewAdapter.getCount() + "");
+                    myViewPagerAdapter.notifyDataSetChanged();
                 }
+
             }
             break;
         }
@@ -160,7 +181,8 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private class MyViewPagerAdapter extends PagerAdapter {
+
+    public class MyViewPagerAdapter extends PagerAdapter {
         private final static int INT_COUNT = 2;
         private Context context;
         private LayoutInflater mInflater;
@@ -200,15 +222,59 @@ public class MainActivity extends Activity {
                             userListViewAdapter.removeItem(position);
                             userListViewAdapter.notifyDataSetChanged();
                             tv_name2.setText(userListViewAdapter.getCount() + "");
+//                            if (userListViewAdapter.getCount() == 0) {
+//                                View v = mInflater.inflate(R.layout.layout_userlist, null);
+//                                ((LinearLayout) v.findViewById(R.id.ll_userlist)).setVisibility(View.INVISIBLE);
+//                                ((LinearLayout) v.findViewById(R.id.ll_usertext)).setVisibility(View.VISIBLE);
+//                            }
                             return true;
                         }
                     });
+
+//                    if (userListViewAdapter.getCount() == 0) {
+//                        ((LinearLayout) v.findViewById(R.id.ll_userlist)).setVisibility(View.INVISIBLE);
+//                        ((LinearLayout) v.findViewById(R.id.ll_usertext)).setVisibility(View.VISIBLE);
+//                    } else {
+//                        ((LinearLayout) v.findViewById(R.id.ll_userlist)).setVisibility(View.VISIBLE);
+//                        ((LinearLayout) v.findViewById(R.id.ll_usertext)).setVisibility(View.INVISIBLE);
+//                    }
                 }
                 break;
                 case 1: {
                     v = mInflater.inflate(R.layout.layout_todolist, null);
                     ListView lv_todolist = (ListView) v.findViewById(R.id.lv_todolist);
                     lv_todolist.setAdapter(todoListViewAdapter);
+                    lv_todolist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Intent intent = new Intent(getApplicationContext(), DetailTodoActivity.class);
+                            intent.putExtra("todo", (Todo) todoListViewAdapter.getItem(position));
+                            startActivity(intent);
+                        }
+                    });
+                    lv_todolist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                        @Override
+                        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                            todoDBManager.delete((Todo) todoListViewAdapter.getItem(position));
+                            todoListViewAdapter.removeItem(position);
+                            todoListViewAdapter.notifyDataSetChanged();
+                            tv_name2.setText(todoListViewAdapter.getCount() + "");
+//                            if (todoListViewAdapter.getCount() == 0) {
+//                                View v = mInflater.inflate(R.layout.layout_userlist, null);
+//                                ((LinearLayout) v.findViewById(R.id.ll_todolist)).setVisibility(View.INVISIBLE);
+//                                ((LinearLayout) v.findViewById(R.id.ll_todotext)).setVisibility(View.VISIBLE);
+//                            }
+                            return true;
+                        }
+                    });
+
+//                    if (todoListViewAdapter.getCount() == 0) {
+//                        ((LinearLayout) v.findViewById(R.id.ll_todolist)).setVisibility(View.INVISIBLE);
+//                        ((LinearLayout) v.findViewById(R.id.ll_todotext)).setVisibility(View.VISIBLE);
+//                    } else {
+//                        ((LinearLayout) v.findViewById(R.id.ll_todolist)).setVisibility(View.VISIBLE);
+//                        ((LinearLayout) v.findViewById(R.id.ll_todotext)).setVisibility(View.INVISIBLE);
+//                    }
                 }
                 break;
             }
@@ -227,5 +293,4 @@ public class MainActivity extends Activity {
             return view == object;
         }
     }
-
 }

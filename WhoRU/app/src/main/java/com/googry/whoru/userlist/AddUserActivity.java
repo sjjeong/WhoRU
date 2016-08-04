@@ -44,6 +44,7 @@ public class AddUserActivity extends Activity {
                 Intent intent = new Intent();
                 intent.putExtra("user",user);
                 setResult(RESULT_OK,intent);
+                dbManager.close();
                 finish();
             }
         });

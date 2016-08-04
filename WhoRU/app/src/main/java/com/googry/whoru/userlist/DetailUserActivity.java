@@ -3,6 +3,7 @@ package com.googry.whoru.userlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,7 +40,7 @@ public class DetailUserActivity extends Activity {
 
     private void setData(User user) {
         et_name.setText(user.getName());
-        et_phone.setText(user.getPhone());
+        et_phone.setText(PhoneNumberUtils.formatNumber(user.getPhone()));
         et_email.setText(user.getEmail());
         et_department.setText(user.getDepartment());
         et_memo.setText(user.getMemo());

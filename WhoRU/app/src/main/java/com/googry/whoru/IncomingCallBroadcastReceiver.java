@@ -20,10 +20,6 @@ public class IncomingCallBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-
-
-
-
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         if (state.equals(mLastState)) {
             return;
@@ -33,11 +29,10 @@ public class IncomingCallBroadcastReceiver extends BroadcastReceiver {
 
         if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
             String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-            Log.i("googry",incomingNumber);
-            final String phone_number = PhoneNumberUtils.formatNumber(incomingNumber);
+
 
             Intent serviceIntent = new Intent(context, ViewService.class);
-            serviceIntent.putExtra(ViewService.EXTRA_CALL_NUMBER, phone_number);
+            serviceIntent.putExtra(ViewService.EXTRA_CALL_NUMBER, incomingNumber);
             context.startService(serviceIntent);
         }
     }

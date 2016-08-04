@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +20,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.googry.whoru.database.UserDBManager;
+import com.googry.whoru.userlist.User;
 
 /**
  * Created by SeokJun on 2016-06-27.
@@ -33,12 +38,25 @@ public class ViewService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         TextView tv_call_number = (TextView) layout.findViewById(R.id.tv_call_number);
         String call_number = intent.getStringExtra(EXTRA_CALL_NUMBER);
-        if (!TextUtils.isEmpty(call_number)) {
-            tv_call_number.setText(call_number);
+        final String phone_number = PhoneNumberUtils.formatNumber(call_number);
+        if (!TextUtils.isEmpty(phone_number)) {
+            tv_call_number.setText(phone_number);
+        }
+        User user = userDBManager.getUserToPhone(call_number);
+        if (user != null) {
+            TextView tv_name = (TextView) layout.findViewById(R.id.tv_name);
+            TextView tv_email = (TextView) layout.findViewById(R.id.tv_email);
+            TextView tv_department = (TextView) layout.findViewById(R.id.tv_department);
+            tv_name.setText(user.getName());
+            tv_email.setText(user.getEmail());
+            tv_department.setText(user.getDepartment());
+        }else{
+
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
+    private UserDBManager userDBManager;
     private LinearLayout layout;
     private WindowManager windowManager;
     public static final String EXTRA_CALL_NUMBER = "call_number";
@@ -47,6 +65,8 @@ public class ViewService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        userDBManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
+
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         layout = (LinearLayout) layoutInflater.inflate(R.layout.view_popup, null);
 
@@ -57,19 +77,20 @@ public class ViewService extends Service {
         int screenWidth = metrics.widthPixels;
         int screenHeight = metrics.heightPixels;
 
-
         params = new WindowManager.LayoutParams(
-                (int) (screenWidth * 0.9),
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
                 PixelFormat.TRANSLUCENT);
-
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         windowManager.addView(layout, params);
-        setDraggable();
+
+        params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        params.width = (int) (screenWidth * 0.8);
+        params.y = (int) ((screenHeight) * 0.1);
+        windowManager.updateViewLayout(layout, params);
 
         Button btn_close = (Button) layout.findViewById(R.id.btn_close);
         btn_close.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +114,7 @@ public class ViewService extends Service {
                         Log.i("googry", "OFFHOOK");
                         break;
                     case TelephonyManager.CALL_STATE_IDLE:
-                        layout.setVisibility(View.VISIBLE);
+//                        layout.setVisibility(View.VISIBLE);
                         Log.i("googry", "IDLE");
                         break;
 
@@ -104,38 +125,6 @@ public class ViewService extends Service {
 
     }
 
-    private void setDraggable() {
-
-        layout.setOnTouchListener(new View.OnTouchListener() {
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = params.x;
-                        initialY = params.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-
-                        if (layout != null)
-                            windowManager.updateViewLayout(layout, params);
-                        return true;
-                }
-                return false;
-            }
-        });
-
-    }
 
     @Override
     public void onDestroy() {

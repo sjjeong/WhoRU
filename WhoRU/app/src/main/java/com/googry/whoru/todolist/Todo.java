@@ -8,12 +8,21 @@ import android.os.Parcelable;
  */
 public class Todo implements Parcelable {
     private String day, time, attender, content;
+    private int id;
 
-    public Todo(String day, String time, String attender, String content) {
-        this.day = day;
+    public Todo(String date, String time, String attender, String content) {
+        this.day = date;
         this.time = time;
         this.attender = attender;
         this.content = content;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getContent() {
