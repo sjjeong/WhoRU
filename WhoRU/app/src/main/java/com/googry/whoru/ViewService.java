@@ -34,9 +34,50 @@ public class ViewService extends Service {
         return null;
     }
 
+    public int phoneState;
+
+    private LinearLayout ll_profile, ll_function, ll_donotknownumber;
+    private Button btn_memo, btn_sms, btn_mail, btn_history, btn_schedule;
+    private TextView tv_call_number, tv_name, tv_email, tv_department;
+
+    private TelephonyManager tmgr;
+
+    PhoneStateListener psListener = new PhoneStateListener() {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    if (phoneState == TelephonyManager.CALL_STATE_RINGING)
+                        break;
+                    phoneState = TelephonyManager.CALL_STATE_RINGING;
+                    Log.i("googry", "RINGING");
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    if (phoneState == TelephonyManager.CALL_STATE_OFFHOOK)
+                        break;
+                    phoneState = TelephonyManager.CALL_STATE_OFFHOOK;
+                    if (ll_profile.getVisibility() == View.VISIBLE) {
+                        ll_function.setVisibility(View.VISIBLE);
+                    }
+                    Log.i("googry", "OFFHOOK");
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    if (phoneState == TelephonyManager.CALL_STATE_IDLE)
+                        break;
+                    phoneState = TelephonyManager.CALL_STATE_IDLE;
+                    Log.i("googry", "IDLE");
+                    stopSelf();
+                    break;
+
+            }
+            super.onCallStateChanged(state, incomingNumber);
+        }
+    };
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        TextView tv_call_number = (TextView) layout.findViewById(R.id.tv_call_number);
+        setLayout();
+
         String call_number = intent.getStringExtra(EXTRA_CALL_NUMBER);
         final String phone_number = PhoneNumberUtils.formatNumber(call_number);
         if (!TextUtils.isEmpty(phone_number)) {
@@ -44,16 +85,64 @@ public class ViewService extends Service {
         }
         User user = userDBManager.getUserToPhone(call_number);
         if (user != null) {
-            TextView tv_name = (TextView) layout.findViewById(R.id.tv_name);
-            TextView tv_email = (TextView) layout.findViewById(R.id.tv_email);
-            TextView tv_department = (TextView) layout.findViewById(R.id.tv_department);
+            ll_profile.setVisibility(View.VISIBLE);
             tv_name.setText(user.getName());
             tv_email.setText(user.getEmail());
             tv_department.setText(user.getDepartment());
-        }else{
-
+        } else {
+            ll_donotknownumber.setVisibility(View.VISIBLE);
         }
+
+        tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        tmgr.listen(psListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        btn_memo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        btn_sms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        btn_mail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        btn_history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        btn_schedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void setLayout() {
+        ll_profile = (LinearLayout) layout.findViewById(R.id.ll_profile);
+        ll_function = (LinearLayout) layout.findViewById(R.id.ll_function);
+        ll_donotknownumber = (LinearLayout) layout.findViewById(R.id.ll_donotknownumber);
+        btn_memo = (Button) layout.findViewById(R.id.btn_memo);
+        btn_sms = (Button) layout.findViewById(R.id.btn_sms);
+        btn_mail = (Button) layout.findViewById(R.id.btn_mail);
+        btn_history = (Button) layout.findViewById(R.id.btn_history);
+        btn_schedule = (Button) layout.findViewById(R.id.btn_schedule);
+        tv_call_number = (TextView) layout.findViewById(R.id.tv_call_number);
+        tv_name = (TextView) layout.findViewById(R.id.tv_name);
+        tv_email = (TextView) layout.findViewById(R.id.tv_email);
+        tv_department = (TextView) layout.findViewById(R.id.tv_department);
     }
 
     private UserDBManager userDBManager;
@@ -89,39 +178,17 @@ public class ViewService extends Service {
 
         params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         params.width = (int) (screenWidth * 0.8);
-        params.y = (int) ((screenHeight) * 0.1);
+        params.y = (int) ((screenHeight) * 0.2);
         windowManager.updateViewLayout(layout, params);
 
-        Button btn_close = (Button) layout.findViewById(R.id.btn_close);
-        btn_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopSelf();
-            }
-        });
+//        Button btn_close = (Button) layout.findViewById(R.id.btn_close);
+//        btn_close.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                stopself();
+//            }
+//        });
 
-
-        TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        tmgr.listen(new PhoneStateListener() {
-            @Override
-            public void onCallStateChanged(int state, String incomingNumber) {
-                switch (state) {
-                    case TelephonyManager.CALL_STATE_RINGING:
-                        Log.i("googry", "RINGING");
-                        break;
-                    case TelephonyManager.CALL_STATE_OFFHOOK:
-                        layout.setVisibility(View.INVISIBLE);
-                        Log.i("googry", "OFFHOOK");
-                        break;
-                    case TelephonyManager.CALL_STATE_IDLE:
-//                        layout.setVisibility(View.VISIBLE);
-                        Log.i("googry", "IDLE");
-                        break;
-
-                }
-                super.onCallStateChanged(state, incomingNumber);
-            }
-        }, PhoneStateListener.LISTEN_CALL_STATE);
 
     }
 
@@ -132,7 +199,9 @@ public class ViewService extends Service {
         if (layout != null) {
             ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(layout);
             layout = null;
-
+        }
+        if (tmgr != null) {
+            tmgr.listen(psListener, PhoneStateListener.LISTEN_NONE);
         }
     }
 }

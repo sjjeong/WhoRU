@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.googry.whoru.R;
+import com.googry.whoru.userlist.User;
 
 import java.util.ArrayList;
 
@@ -17,10 +18,12 @@ import java.util.ArrayList;
 public class TodoListViewAdapter extends BaseAdapter {
     private Context context = null;
     private ArrayList<Todo> alTodo = new ArrayList<>();
+    private ArrayList<User> alUser;
 
-    public TodoListViewAdapter(Context context) {
+    public TodoListViewAdapter(Context context, ArrayList<User> user) {
         super();
         this.context = context;
+        this.alUser = user;
     }
 
     @Override
@@ -59,11 +62,20 @@ public class TodoListViewAdapter extends BaseAdapter {
 
         Todo todo = alTodo.get(position);
 
-        //나중에 이미지 삽입
-//        holder.iv_picture.
+        String[] arrStr = todo.getAttender().split(":");
+        String strAttender = "";
+        for (String str : arrStr) {
+            for (User user : alUser) {
+                if (user.getPhone().equals(str)) {
+                    strAttender += user.getName() + "/";
+                    break;
+                }
+            }
+        }
+
         holder.tv_itemDay.setText(todo.getDay() + " " + todo.getTime());
         holder.tv_itemContent.setText(todo.getContent());
-        holder.tv_itemAttender.setText(todo.getAttender());
+        holder.tv_itemAttender.setText(strAttender);
         return convertView;
     }
 

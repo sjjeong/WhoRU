@@ -141,7 +141,7 @@ public class MainActivity extends Activity {
         userListViewAdapter.addItems(userDBManager.getArrayListData());
 
         //get todo db
-        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext());
+        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext(),userListViewAdapter.getAlUser());
         todoDBManager = new TodoDBManager(getApplicationContext(), TodoDBManager.DBNAME, null, TodoDBManager.DBVERSER);
         todoListViewAdapter.addItems(todoDBManager.getArrayListData());
 
@@ -162,7 +162,6 @@ public class MainActivity extends Activity {
                     userListViewAdapter.addItem((User) data.getParcelableExtra("user"));
                     userListViewAdapter.notifyDataSetChanged();
                     tv_name2.setText(userListViewAdapter.getCount() + "");
-                    myViewPagerAdapter.notifyDataSetChanged();
                 }
             }
             break;
@@ -171,7 +170,6 @@ public class MainActivity extends Activity {
                     todoListViewAdapter.addItem((Todo) data.getParcelableExtra("todo"));
                     todoListViewAdapter.notifyDataSetChanged();
                     tv_name2.setText(todoListViewAdapter.getCount() + "");
-                    myViewPagerAdapter.notifyDataSetChanged();
                 }
 
             }

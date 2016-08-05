@@ -27,6 +27,10 @@ public class UserListViewAdapter extends BaseAdapter {
         this.context = context;
     }
 
+    public ArrayList<User> getAlUser() {
+        return this.alUser;
+    }
+
     @Override
     public int getCount() {
         return alUser.size();

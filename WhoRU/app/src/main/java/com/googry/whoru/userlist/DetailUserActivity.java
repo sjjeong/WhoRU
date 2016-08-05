@@ -28,14 +28,12 @@ public class DetailUserActivity extends Activity {
         User user = getIntent().getParcelableExtra("user");
         setData(user);
 
-
         btn_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-
     }
 
     private void setData(User user) {
