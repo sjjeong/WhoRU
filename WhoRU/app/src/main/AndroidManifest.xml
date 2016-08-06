@@ -21,6 +21,7 @@
         <activity android:name=".userlist.AddUserActivity" />
         <activity android:name=".userlist.DetailUserActivity" />
         <activity android:name=".todolist.AddTodoActivity" />
+
         <receiver android:name=".IncomingCallBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
@@ -32,7 +33,12 @@
             android:permission="android.permission.SYSTEM_ALERT_WINDOW" />
 
         <activity android:name=".todolist.DetailTodoActivity" />
-        <activity android:name=".todolist.AddUser2TodoActivity"></activity>
+        <activity android:name=".todolist.AddUser2TodoActivity" />
+        <activity android:name=".callingUtil.HistoryActivity" />
+        <activity android:name=".callingUtil.MemoActivity" />
+        <activity android:name=".callingUtil.ScheduleActivity" />
+        <activity android:name=".callingUtil.SendEmailActivity" />
+        <activity android:name=".callingUtil.SendSMSActivity" />
     </application>
 
 </manifest>

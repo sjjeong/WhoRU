@@ -1,5 +1,6 @@
 package com.googry.whoru.todolist;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +19,7 @@ public class DetailTodoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detailtodo);
         setLayout();
         Todo todo = getIntent().getParcelableExtra("todo");
-        setData(todo);
+        setData(todo,getIntent());
 
 
         btn_ok.setOnClickListener(new View.OnClickListener() {
@@ -30,10 +31,10 @@ public class DetailTodoActivity extends AppCompatActivity {
 
     }
 
-    private void setData(Todo todo) {
+    private void setData(Todo todo,Intent intent) {
         et_date.setText(todo.getDay());
         et_time.setText(todo.getTime());
-        et_attender.setText(todo.getAttender());
+        et_attender.setText(intent.getStringExtra("attender"));
         et_content.setText(todo.getContent());
     }
 

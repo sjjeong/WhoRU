@@ -27,6 +27,7 @@ import com.googry.whoru.userlist.DetailUserActivity;
 import com.googry.whoru.userlist.User;
 import com.googry.whoru.userlist.UserListViewAdapter;
 
+import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 
@@ -84,7 +85,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AddTodoActivity.class);
                 startActivityForResult(intent, REQUESTCODE_ADDTODO);
-
             }
         });
 
@@ -141,7 +141,7 @@ public class MainActivity extends Activity {
         userListViewAdapter.addItems(userDBManager.getArrayListData());
 
         //get todo db
-        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext(),userListViewAdapter.getAlUser());
+        todoListViewAdapter = new TodoListViewAdapter(getApplicationContext(), userListViewAdapter.getAlUser());
         todoDBManager = new TodoDBManager(getApplicationContext(), TodoDBManager.DBNAME, null, TodoDBManager.DBVERSER);
         todoListViewAdapter.addItems(todoDBManager.getArrayListData());
 
@@ -247,6 +247,21 @@ public class MainActivity extends Activity {
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             Intent intent = new Intent(getApplicationContext(), DetailTodoActivity.class);
                             intent.putExtra("todo", (Todo) todoListViewAdapter.getItem(position));
+                            String[] strPhone = ((Todo) todoListViewAdapter.getItem(position)).getAttender().split(":");
+                            ArrayList<User> userArrayList = userListViewAdapter.getAlUser();
+                            String strName = "";
+                            for (String tmp : strPhone) {
+                                for (User user : userArrayList) {
+                                    if (tmp.equals(user.getPhone())) {
+                                        strName += user.getName() + "/";
+                                        break;
+                                    }
+                                }
+                            }
+                            if (strName.length() != 0) {
+                                strName = strName.substring(0, strName.length() - 1);
+                            }
+                            intent.putExtra("attender", strName);
                             startActivity(intent);
                         }
                     });

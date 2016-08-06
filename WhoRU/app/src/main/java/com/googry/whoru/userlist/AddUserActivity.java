@@ -29,6 +29,14 @@ public class AddUserActivity extends Activity {
         setContentView(R.layout.activity_adduser);
         setLayout();
 
+        Intent intent = getIntent();
+        final String strPhone = intent.getStringExtra("call_number");
+        if(strPhone != null){
+            et_phone.setText(strPhone);
+            et_phone.setEnabled(false);
+            et_phone.setFocusable(false);
+        }
+
         dbManager = new UserDBManager(getApplicationContext(), UserDBManager.DBNAME, null, UserDBManager.DBVERSER);
 
         btn_register.setOnClickListener(new View.OnClickListener() {
@@ -42,8 +50,8 @@ public class AddUserActivity extends Activity {
                         null);
                 dbManager.insert(user);
                 Intent intent = new Intent();
-                intent.putExtra("user",user);
-                setResult(RESULT_OK,intent);
+                intent.putExtra("user", user);
+                setResult(RESULT_OK, intent);
                 dbManager.close();
                 finish();
             }

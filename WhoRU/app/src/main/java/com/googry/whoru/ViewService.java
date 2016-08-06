@@ -21,7 +21,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.googry.whoru.callingUtil.MemoActivity;
 import com.googry.whoru.database.UserDBManager;
+import com.googry.whoru.userlist.AddUserActivity;
 import com.googry.whoru.userlist.User;
 
 /**
@@ -36,8 +38,8 @@ public class ViewService extends Service {
 
     public int phoneState;
 
-    private LinearLayout ll_profile, ll_function, ll_donotknownumber;
-    private Button btn_memo, btn_sms, btn_mail, btn_history, btn_schedule;
+    private LinearLayout ll_profile, ll_function, ll_donotknownumber, ll_adduser;
+    private Button btn_memo, btn_sms, btn_mail, btn_history, btn_schedule, btn_register, btn_cancel;
     private TextView tv_call_number, tv_name, tv_email, tv_department;
 
     private TelephonyManager tmgr;
@@ -64,9 +66,14 @@ public class ViewService extends Service {
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (phoneState == TelephonyManager.CALL_STATE_IDLE)
                         break;
+                    if (ll_profile.getVisibility() == View.GONE) {
+                        ll_adduser.setVisibility(View.VISIBLE);
+                        ll_donotknownumber.setVisibility(View.GONE);
+                    } else {
+                        stopSelf();
+                    }
                     phoneState = TelephonyManager.CALL_STATE_IDLE;
                     Log.i("googry", "IDLE");
-                    stopSelf();
                     break;
 
             }
@@ -75,10 +82,10 @@ public class ViewService extends Service {
     };
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
         setLayout();
 
-        String call_number = intent.getStringExtra(EXTRA_CALL_NUMBER);
+        final String call_number = intent.getStringExtra(EXTRA_CALL_NUMBER);
         final String phone_number = PhoneNumberUtils.formatNumber(call_number);
         if (!TextUtils.isEmpty(phone_number)) {
             tv_call_number.setText(phone_number);
@@ -99,7 +106,11 @@ public class ViewService extends Service {
         btn_memo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent mIntent = new Intent(getApplicationContext(), MemoActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mIntent.putExtra("call_number",call_number);
+                startActivity(mIntent);
+//                stopSelf();
             }
         });
         btn_sms.setOnClickListener(new View.OnClickListener() {
@@ -126,6 +137,22 @@ public class ViewService extends Service {
 
             }
         });
+        btn_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent mIntent = new Intent(getApplicationContext(), AddUserActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mIntent.putExtra("call_number",call_number);
+                startActivity(mIntent);
+                stopSelf();
+            }
+        });
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSelf();
+            }
+        });
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -134,11 +161,14 @@ public class ViewService extends Service {
         ll_profile = (LinearLayout) layout.findViewById(R.id.ll_profile);
         ll_function = (LinearLayout) layout.findViewById(R.id.ll_function);
         ll_donotknownumber = (LinearLayout) layout.findViewById(R.id.ll_donotknownumber);
+        ll_adduser = (LinearLayout) layout.findViewById(R.id.ll_adduser);
         btn_memo = (Button) layout.findViewById(R.id.btn_memo);
         btn_sms = (Button) layout.findViewById(R.id.btn_sms);
         btn_mail = (Button) layout.findViewById(R.id.btn_mail);
         btn_history = (Button) layout.findViewById(R.id.btn_history);
         btn_schedule = (Button) layout.findViewById(R.id.btn_schedule);
+        btn_register = (Button) layout.findViewById(R.id.btn_register);
+        btn_cancel = (Button) layout.findViewById(R.id.btn_cancel);
         tv_call_number = (TextView) layout.findViewById(R.id.tv_call_number);
         tv_name = (TextView) layout.findViewById(R.id.tv_name);
         tv_email = (TextView) layout.findViewById(R.id.tv_email);
