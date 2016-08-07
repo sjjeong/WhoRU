@@ -25,7 +25,8 @@ public class MemoDBManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLENAME + "(" +
-                "phone text primary key," +
+                "_id integer primary key autoincrement, " +
+                "phone text," +
                 "day text, " +
                 "time text, " +
                 "content text" +
@@ -51,20 +52,20 @@ public class MemoDBManager extends SQLiteOpenHelper {
     public void delete(Memo memo) {
         SQLiteDatabase db = getWritableDatabase();
         String query = "delete from " + TABLENAME +
-                " where _id = " + memo.getPhone() + ";";
+                " where phone = " + memo.getPhone() + ";";
         db.execSQL(query);
     }
 
-    public ArrayList<Todo> getArrayListData() {
-        ArrayList<Todo> alTodo = new ArrayList<>();
+    public ArrayList<Memo> getArrayListData() {
+        ArrayList<Memo> alMemo = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + TABLENAME, null);
         while (cursor.moveToNext()) {;
-            Todo user = new Todo(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
-            user.setId(cursor.getInt(0));
-            alTodo.add(user);
+            Memo memo = new Memo(cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4));
+            memo.setId(cursor.getInt(0));
+            alMemo.add(memo);
         }
-        return alTodo;
+        return alMemo;
     }
 
     @Override

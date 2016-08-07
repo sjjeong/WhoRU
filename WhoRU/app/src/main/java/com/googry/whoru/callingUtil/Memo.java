@@ -5,6 +5,16 @@ package com.googry.whoru.callingUtil;
  */
 public class Memo {
     private String phone, day, time, content;
+    private int id;
+
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public Memo(String phone, String day, String time, String content) {
         this.day = day;

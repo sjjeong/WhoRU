@@ -2,6 +2,7 @@ package com.googry.whoru.callingUtil;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,12 +14,16 @@ import android.widget.ListView;
 
 import com.googry.whoru.R;
 
+import java.util.ArrayList;
+
 /**
  * Created by SeokJun on 2016-08-06.
  */
 public class MemoActivity extends Activity {
     private Button btn_addmemo;
     private ListView lv_memo;
+
+    private MemoAdapter memoAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,8 @@ public class MemoActivity extends Activity {
             }
         });
 
+        memoAdapter = new MemoAdapter(getApplicationContext());
+
     }
 
     private void setLayout() {
@@ -62,6 +69,13 @@ public class MemoActivity extends Activity {
     }
 
     private class MemoAdapter extends BaseAdapter{
+        private ArrayList<Memo> alMemo;
+        private Context context;
+
+        public MemoAdapter(Context context) {
+            super();
+            this.context = context;
+        }
 
         @Override
         public int getCount() {
