@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_popup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#000000"
@@ -26,8 +27,7 @@
             android:id="@+id/btn_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="확인"
-            android:visibility="gone" />
+            android:text="닫기" />
 
     </LinearLayout>
 

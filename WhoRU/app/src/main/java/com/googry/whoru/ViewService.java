@@ -1,9 +1,12 @@
 package com.googry.whoru;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.telephony.PhoneNumberUtils;
@@ -26,6 +29,8 @@ import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.userlist.AddUserActivity;
 import com.googry.whoru.userlist.User;
 
+import java.util.ArrayList;
+
 /**
  * Created by SeokJun on 2016-06-27.
  */
@@ -38,11 +43,14 @@ public class ViewService extends Service {
 
     public int phoneState;
 
+    private static LinearLayout ll_popup;
     private LinearLayout ll_profile, ll_function, ll_donotknownumber, ll_adduser;
     private Button btn_memo, btn_sms, btn_mail, btn_history, btn_schedule, btn_register, btn_cancel;
     private TextView tv_call_number, tv_name, tv_email, tv_department;
 
     private TelephonyManager tmgr;
+
+    private UserDBManager userDBManager;
 
     PhoneStateListener psListener = new PhoneStateListener() {
         @Override
@@ -90,7 +98,7 @@ public class ViewService extends Service {
         if (!TextUtils.isEmpty(phone_number)) {
             tv_call_number.setText(phone_number);
         }
-        User user = userDBManager.getUserToPhone(call_number);
+        final User user = userDBManager.getUserToPhone(call_number);
         if (user != null) {
             ll_profile.setVisibility(View.VISIBLE);
             tv_name.setText(user.getName());
@@ -106,23 +114,32 @@ public class ViewService extends Service {
         btn_memo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                offView();
                 Intent mIntent = new Intent(getApplicationContext(), MemoActivity.class);
                 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mIntent.putExtra("call_number",call_number);
+                mIntent.putExtra("call_number", call_number);
                 startActivity(mIntent);
-//                stopSelf();
             }
         });
         btn_sms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                offView();
+                Intent mIntent = new Intent(Intent.ACTION_VIEW);
+//                mIntent.putExtra("sms_body","test");
+                mIntent.putExtra("address", call_number);
+                mIntent.setType("vnd.android-dir/mms-sms");
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mIntent);
             }
         });
         btn_mail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                offView();
+                Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:" + user.getEmail()));
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mIntent);
             }
         });
         btn_history.setOnClickListener(new View.OnClickListener() {
@@ -142,7 +159,7 @@ public class ViewService extends Service {
             public void onClick(View view) {
                 Intent mIntent = new Intent(getApplicationContext(), AddUserActivity.class);
                 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mIntent.putExtra("call_number",call_number);
+                mIntent.putExtra("call_number", call_number);
                 startActivity(mIntent);
                 stopSelf();
             }
@@ -158,6 +175,7 @@ public class ViewService extends Service {
     }
 
     private void setLayout() {
+        ll_popup = (LinearLayout) layout.findViewById(R.id.ll_popup);
         ll_profile = (LinearLayout) layout.findViewById(R.id.ll_profile);
         ll_function = (LinearLayout) layout.findViewById(R.id.ll_function);
         ll_donotknownumber = (LinearLayout) layout.findViewById(R.id.ll_donotknownumber);
@@ -175,7 +193,6 @@ public class ViewService extends Service {
         tv_department = (TextView) layout.findViewById(R.id.tv_department);
     }
 
-    private UserDBManager userDBManager;
     private LinearLayout layout;
     private WindowManager windowManager;
     public static final String EXTRA_CALL_NUMBER = "call_number";
@@ -211,15 +228,17 @@ public class ViewService extends Service {
         params.y = (int) ((screenHeight) * 0.2);
         windowManager.updateViewLayout(layout, params);
 
-//        Button btn_close = (Button) layout.findViewById(R.id.btn_close);
-//        btn_close.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                stopself();
-//            }
-//        });
+        Button btn_close = (Button) layout.findViewById(R.id.btn_close);
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ll_popup.setVisibility(View.GONE);
+            }
+        });
 
-
+        intentFIlter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFIlter.addAction(Intent.ACTION_SCREEN_ON);
+        registerReceiver(screenOnOffBroadcastReceiver, intentFIlter);
     }
 
 
@@ -233,5 +252,32 @@ public class ViewService extends Service {
         if (tmgr != null) {
             tmgr.listen(psListener, PhoneStateListener.LISTEN_NONE);
         }
+        if (screenOnOffBroadcastReceiver != null && intentFIlter != null) {
+            unregisterReceiver(screenOnOffBroadcastReceiver);
+        }
+    }
+
+    private IntentFilter intentFIlter = new IntentFilter();
+    private BroadcastReceiver screenOnOffBroadcastReceiver = new BroadcastReceiver() {
+        public static final String ScreenOff = "android.intent.action.SCREEN_OFF";
+        public static final String ScreenOn = "android.intent.action.SCREEN_ON";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ScreenOff)) {
+                ll_popup.setVisibility(View.GONE);
+            } else if (intent.getAction().equals(ScreenOn)) {
+                ll_popup.setVisibility(View.VISIBLE);
+            }
+        }
+    };
+
+    public static void onView() {
+        ll_popup.setVisibility(View.VISIBLE);
+
+    }
+
+    public static void offView() {
+        ll_popup.setVisibility(View.GONE);
     }
 }
