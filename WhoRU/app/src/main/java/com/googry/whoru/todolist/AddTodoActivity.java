@@ -52,7 +52,7 @@ public class AddTodoActivity extends Activity {
             public void onClick(View v) {
                 String str = "";
                 for (User user : alUser) {
-                    str += user.getPhone() + ":";
+                    str += user.getPhone() + Todo.SPLITUNIT;
                 }
                 if (str.length() != 0) {
                     str = str.substring(0, str.length() - 1);

@@ -31,6 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="개발진행"
+                android:maxLines="1"
                 android:textColor="#000000"
                 android:textSize="10dp" />
 
@@ -38,7 +39,7 @@
                 android:id="@+id/tv_itemAttender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:text="유혜정, 홍지홍"
                 android:textColor="#000000"
                 android:textSize="10dp" />

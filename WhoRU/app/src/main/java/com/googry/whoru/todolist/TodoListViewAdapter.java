@@ -49,7 +49,7 @@ public class TodoListViewAdapter extends BaseAdapter {
 
 //            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LayoutInflater inflater = LayoutInflater.from(context);
-            convertView = inflater.inflate(R.layout.listitem_todo, null);
+            convertView = inflater.inflate(R.layout.listitem_todo, null);;
 
             holder.tv_itemDay = (TextView) convertView.findViewById(R.id.tv_itemDay);
             holder.tv_itemContent = (TextView) convertView.findViewById(R.id.tv_itemContent);
@@ -64,13 +64,19 @@ public class TodoListViewAdapter extends BaseAdapter {
 
         String[] arrStr = todo.getAttender().split(":");
         String strAttender = "";
+        boolean flag = true;
         for (String str : arrStr) {
             for (User user : alUser) {
                 if (user.getPhone().equals(str)) {
                     strAttender += user.getName() + "/";
+                    flag = false;
                     break;
                 }
             }
+            if(flag){
+                strAttender += str+"/";
+            }
+            flag = true;
         }
 
         holder.tv_itemDay.setText(todo.getDay() + " " + todo.getTime());

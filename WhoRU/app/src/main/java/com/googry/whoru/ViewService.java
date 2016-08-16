@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.googry.whoru.callingUtil.MemoActivity;
+import com.googry.whoru.callingUtil.ScheduleActivity;
 import com.googry.whoru.database.UserDBManager;
 import com.googry.whoru.userlist.AddUserActivity;
 import com.googry.whoru.userlist.User;
@@ -151,7 +152,11 @@ public class ViewService extends Service {
         btn_schedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                offView();
+                Intent mIntent = new Intent(getApplicationContext(), ScheduleActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mIntent.putExtra("call_number", call_number);
+                startActivity(mIntent);
             }
         });
         btn_register.setOnClickListener(new View.OnClickListener() {

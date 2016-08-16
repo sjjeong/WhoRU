@@ -10,6 +10,8 @@ public class Todo implements Parcelable {
     private String day, time, attender, content;
     private int id;
 
+    public final static String SPLITUNIT = ":";
+
     public Todo(String date, String time, String attender, String content) {
         this.day = date;
         this.time = time;

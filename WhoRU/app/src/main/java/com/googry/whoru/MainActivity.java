@@ -1,7 +1,9 @@
 package com.googry.whoru;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -216,10 +218,35 @@ public class MainActivity extends Activity {
                     lv_users.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                         @Override
                         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                            userDBManager.delete((User) userListViewAdapter.getItem(position));
-                            userListViewAdapter.removeItem(position);
-                            userListViewAdapter.notifyDataSetChanged();
-                            tv_name2.setText(userListViewAdapter.getCount() + "");
+                            final int mPosition = position;
+                            User user = (User) userListViewAdapter.getItem(position);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("삭제/편집");
+                            builder.setMessage(user.getName());
+                            builder.setPositiveButton("편집", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            builder.setNegativeButton("삭제", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    userDBManager.delete((User) userListViewAdapter.getItem(mPosition));
+                                    userListViewAdapter.removeItem(mPosition);
+                                    userListViewAdapter.notifyDataSetChanged();
+                                    tv_name2.setText(userListViewAdapter.getCount() + "");
+                                }
+                            });
+                            builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
 //                            if (userListViewAdapter.getCount() == 0) {
 //                                View v = mInflater.inflate(R.layout.layout_userlist, null);
 //                                ((LinearLayout) v.findViewById(R.id.ll_userlist)).setVisibility(View.INVISIBLE);
@@ -268,10 +295,34 @@ public class MainActivity extends Activity {
                     lv_todolist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                         @Override
                         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                            todoDBManager.delete((Todo) todoListViewAdapter.getItem(position));
-                            todoListViewAdapter.removeItem(position);
-                            todoListViewAdapter.notifyDataSetChanged();
-                            tv_name2.setText(todoListViewAdapter.getCount() + "");
+                            final int mPosition = position;
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("삭제/편집");
+                            builder.setPositiveButton("편집", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            builder.setNegativeButton("삭제", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    todoDBManager.delete((Todo) todoListViewAdapter.getItem(mPosition));
+                                    todoListViewAdapter.removeItem(mPosition);
+                                    todoListViewAdapter.notifyDataSetChanged();
+                                    tv_name2.setText(todoListViewAdapter.getCount() + "");
+                                }
+                            });
+                            builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+
 //                            if (todoListViewAdapter.getCount() == 0) {
 //                                View v = mInflater.inflate(R.layout.layout_userlist, null);
 //                                ((LinearLayout) v.findViewById(R.id.ll_todolist)).setVisibility(View.INVISIBLE);
